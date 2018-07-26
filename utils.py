@@ -35,12 +35,12 @@ def showG(A, B, path):
     assert A.shape==B.shape
     def G(fn_generate, X):
         r = np.array([fn_generate([X[i:i+1]]) for i in range(X.shape[0])])
-        return r.swapaxes(0,1)[:,:,0]        
+        return r.swapaxes(0,1)[:,:,0]
     rA = G(cycleA_generate, A)
     rB = G(cycleB_generate, B)
     arr = np.concatenate([A,B,rA[0],rB[0],rA[1],rB[1]])
     saveX(arr, 3, path)
-    
+
 def saveX(X, path, rows=1):
     imageSize=256
     assert X.shape[0]%rows == 0
@@ -50,7 +50,7 @@ def saveX(X, path, rows=1):
     img = Image.fromarray(int_X)
     img.save(path)
 
-    
+
 
 '''
 *****************************************************************************
@@ -71,7 +71,7 @@ class ImageGenerator(object):
         self.path_trainB = path_trainB
         self.resize = resize
         self.crop = crop
-        
+
     def read_image(self, fn):
         im = Image.open(fn).convert('RGB')
         im = im.resize(self.resize, Image.BILINEAR )
@@ -86,26 +86,26 @@ class ImageGenerator(object):
     def minibatch(self, data, bs):
         length = len(data)
         epoch = i = 0
-        tmpsize = None    
+        tmpsize = None
         while True:
             size = tmpsize if tmpsize else bs
             if i + size > length:
                 shuffle(data)
                 i = 0
-                epoch+=1        
+                epoch+=1
             rtn = [self.read_image(data[j]) for j in range(i, i + size)]
             i += size
             tmpsize = yield epoch, np.float32(rtn)
-    
+
     def minibatchAB(self, dataA, dataB, bs):
         batchA = self.minibatch(dataA, bs)
         batchB = self.minibatch(dataB, bs)
-        tmpsize = None    
-        while True:        
+        tmpsize = None
+        while True:
             ep1, A = batchA.send(tmpsize)
             ep2, B = batchB.send(tmpsize)
             tmpsize = yield max(ep1, ep2), A, B
-            
+
     def __call__(self, bs):
         trainA = glob.glob('{}/*'.format(self.path_trainA))
         trainB = glob.glob('{}/*'.format(self.path_trainB))
@@ -113,7 +113,7 @@ class ImageGenerator(object):
         print('N images train A {} -- N images train B {}'.format(len(trainA), len(trainB)))
 
         return self.minibatchAB(trainA, trainB, bs)
-               
+
 
 '''
 *****************************************************************************
@@ -141,15 +141,15 @@ class Option(object):
         ngf = 64,                           # #  of gen filters in first conv layer
         ndf = 64,                           # of discrim filters in first conv layer
         lmbd = 10.0,
-        lmbd_feat = 1.0,                    
-                 
+        lmbd_feat = 1.0,
+
         # optimizers
         lr = 0.0002,                        # initial learning rate for adam
         beta1 = 0.5,                        # momentum term of adam
 
         # training parameters
         batch_size = 1,                     # images in batch
-        niter = 100,                        #  of iter at starting learning rate
+        niter = 100,                        #   of iter at starting learning rate
         pool_size = 50,                     # the size of image buffer that stores previously generated images
         save_iter = 50,
         d_iter = 10,
