@@ -149,7 +149,7 @@ class Option(object):
 
         # training parameters
         batch_size = 1,                     # images in batch
-        niter = 100,                        #   of iter at starting learning rate
+        niter = 100,                        # of iter at starting learning rate
         pool_size = 50,                     # the size of image buffer that stores previously generated images
         save_iter = 50,
         d_iter = 10,
